@@ -1,0 +1,78 @@
+import { dateKeyToSerial } from "./date-utils.js";
+
+export const QUOTES = Object.freeze([
+  { text: "不积跬步，无以至千里。", author: "荀子", source: "《劝学》" },
+  { text: "千里之行，始于足下。", author: "老子", source: "《道德经》" },
+  { text: "锲而不舍，金石可镂。", author: "荀子", source: "《劝学》" },
+  { text: "学而时习之，不亦说乎？", author: "孔子", source: "《论语》" },
+  { text: "知之者不如好之者，好之者不如乐之者。", author: "孔子", source: "《论语》" },
+  { text: "三人行，必有我师焉。", author: "孔子", source: "《论语》" },
+  { text: "见贤思齐焉，见不贤而内自省也。", author: "孔子", source: "《论语》" },
+  { text: "敏而好学，不耻下问。", author: "孔子", source: "《论语》" },
+  { text: "工欲善其事，必先利其器。", author: "孔子", source: "《论语》" },
+  { text: "博学而笃志，切问而近思。", author: "子夏", source: "《论语》" },
+  { text: "吾日三省吾身。", author: "曾子", source: "《论语》" },
+  { text: "知人者智，自知者明。", author: "老子", source: "《道德经》" },
+  { text: "胜人者有力，自胜者强。", author: "老子", source: "《道德经》" },
+  { text: "合抱之木，生于毫末；九层之台，起于累土。", author: "老子", source: "《道德经》" },
+  { text: "慎终如始，则无败事。", author: "老子", source: "《道德经》" },
+  { text: "上善若水。水善利万物而不争。", author: "老子", source: "《道德经》" },
+  { text: "祸兮福之所倚，福兮祸之所伏。", author: "老子", source: "《道德经》" },
+  { text: "天行健，君子以自强不息。", author: "《周易》", source: "《象传》" },
+  { text: "地势坤，君子以厚德载物。", author: "《周易》", source: "《象传》" },
+  { text: "穷则变，变则通，通则久。", author: "《周易》", source: "《系辞下》" },
+  { text: "路漫漫其修远兮，吾将上下而求索。", author: "屈原", source: "《离骚》" },
+  { text: "少壮不努力，老大徒伤悲。", author: "佚名", source: "《长歌行》" },
+  { text: "盛年不重来，一日难再晨。", author: "陶渊明", source: "《杂诗》" },
+  { text: "及时当勉励，岁月不待人。", author: "陶渊明", source: "《杂诗》" },
+  { text: "业精于勤，荒于嬉；行成于思，毁于随。", author: "韩愈", source: "《进学解》" },
+  { text: "学而不思则罔，思而不学则殆。", author: "孔子", source: "《论语》" },
+  { text: "温故而知新，可以为师矣。", author: "孔子", source: "《论语》" },
+  { text: "岁寒，然后知松柏之后凋也。", author: "孔子", source: "《论语》" },
+  { text: "志不立，天下无可成之事。", author: "王阳明", source: "《教条示龙场诸生》" },
+  { text: "知是行之始，行是知之成。", author: "王阳明", source: "《传习录》" },
+  { text: "天下难事，必作于易；天下大事，必作于细。", author: "老子", source: "《道德经》" },
+  { text: "为者常成，行者常至。", author: "《晏子春秋》", source: "《内篇杂下》" },
+  { text: "博观而约取，厚积而薄发。", author: "苏轼", source: "《稼说送张琥》" },
+  { text: "古之立大事者，不惟有超世之才，亦必有坚忍不拔之志。", author: "苏轼", source: "《晁错论》" },
+  { text: "纸上得来终觉浅，绝知此事要躬行。", author: "陆游", source: "《冬夜读书示子聿》" },
+  { text: "山重水复疑无路，柳暗花明又一村。", author: "陆游", source: "《游山西村》" },
+  { text: "读书破万卷，下笔如有神。", author: "杜甫", source: "《奉赠韦左丞丈二十二韵》" },
+  { text: "会当凌绝顶，一览众山小。", author: "杜甫", source: "《望岳》" },
+  { text: "长风破浪会有时，直挂云帆济沧海。", author: "李白", source: "《行路难》" },
+  { text: "天生我材必有用，千金散尽还复来。", author: "李白", source: "《将进酒》" },
+  { text: "绳锯木断，水滴石穿。", author: "罗大经", source: "《鹤林玉露》" },
+  { text: "日日行，不怕千万里；常常做，不怕千万事。", author: "《格言联璧》", source: "《处事》" },
+  { text: "有志者，事竟成。", author: "范晔", source: "《后汉书》" },
+  { text: "不飞则已，一飞冲天；不鸣则已，一鸣惊人。", author: "司马迁", source: "《史记》" },
+  { text: "骐骥一跃，不能十步；驽马十驾，功在不舍。", author: "荀子", source: "《劝学》" },
+  { text: "读书之法，在循序而渐进，熟读而精思。", author: "朱熹", source: "《读书之要》" },
+  { text: "问渠那得清如许？为有源头活水来。", author: "朱熹", source: "《观书有感》" },
+  { text: "学如逆水行舟，不进则退。", author: "《增广贤文》", source: "" },
+  { text: "一年之计在于春，一日之计在于晨。", author: "《增广贤文》", source: "" },
+  { text: "一寸光阴一寸金，寸金难买寸光阴。", author: "《增广贤文》", source: "" },
+  { text: "莫等闲，白了少年头，空悲切。", author: "岳飞", source: "《满江红》" },
+  { text: "祸患常积于忽微，而智勇多困于所溺。", author: "欧阳修", source: "《伶官传序》" },
+  { text: "忧劳可以兴国，逸豫可以亡身。", author: "欧阳修", source: "《伶官传序》" },
+  { text: "非淡泊无以明志，非宁静无以致远。", author: "诸葛亮", source: "《诫子书》" },
+  { text: "夫学须静也，才须学也。", author: "诸葛亮", source: "《诫子书》" },
+  { text: "勿以恶小而为之，勿以善小而不为。", author: "刘备", source: "《三国志》" },
+  { text: "书读百遍，而义自见。", author: "陈寿", source: "《三国志》" },
+  { text: "少年易老学难成，一寸光阴不可轻。", author: "朱熹", source: "《偶成》" },
+  { text: "木受绳则直，金就砺则利。", author: "荀子", source: "《劝学》" },
+  { text: "读书之乐乐无穷，瑶琴一曲来薰风。", author: "翁森", source: "《四时读书乐》" },
+  { text: "知之愈明，则行之愈笃。", author: "朱熹", source: "《朱子语类》" },
+]);
+
+export function getQuoteForDate(dateKey) {
+  if (!QUOTES.length) {
+    return {
+      text: "从一个小动作开始，今天也会有所不同。",
+      author: "微习惯",
+      source: "",
+    };
+  }
+
+  const index = ((dateKeyToSerial(dateKey) % QUOTES.length) + QUOTES.length) % QUOTES.length;
+  return QUOTES[index];
+}

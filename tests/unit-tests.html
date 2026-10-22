@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>微习惯单元测试</title>
+  </head>
+  <body>
+    <h1>微习惯单元测试</h1>
+    <pre id="results">RUNNING</pre>
+    <script type="module">
+      import {
+        addDays,
+        dateKeyToSerial,
+        enumerateDateKeys,
+        toDateKey,
+      } from "../js/date-utils.js";
+      import { QUOTES, getQuoteForDate } from "../js/quotes.js";
+      import {
+        buildCheckInIndex,
+        getCompletionForDate,
+        getCurrentStreak,
+        getHabitRangeCompletion,
+        getLongestStreak,
+        getRangeCompletion,
+      } from "../js/stats.js";
+
+      const results = [];
+
+      function assert(condition, message) {
+        if (!condition) {
+          throw new Error(message);
+        }
+      }
+
+      function test(name, callback) {
+        try {
+          callback();
+          results.push({ name, passed: true });
+        } catch (error) {
+          results.push({ name, passed: false, error: error.message });
+        }
+      }
+
+      test("本地日期 Key 保持年月日", () => {
+        const date = new Date(2026, 9, 22, 23, 55);
+        assert(toDateKey(date) === "2026-10-22", "日期 Key 不正确");
+      });
+
+      test("跨月增加日期", () => {
+        assert(addDays("2026-10-31", 1) === "2026-11-01", "跨月结果不正确");
+      });
+
+      test("跨年日期序号相差一天", () => {
+        assert(
+          dateKeyToSerial("2027-01-01") -
+            dateKeyToSerial("2026-12-31") ===
+            1,
+          "日期序号不连续",
+        );
+      });
+
+      test("枚举日期按时间升序", () => {
+        assert(
+          enumerateDateKeys("2026-10-22", 3).join(",") ===
+            "2026-10-20,2026-10-21,2026-10-22",
+          "日期枚举结果不正确",
+        );
+      });
+
+      test("今天完成时计算当前连续", () => {
+        const dates = new Set(["2026-10-20", "2026-10-21", "2026-10-22"]);
+        assert(
+          getCurrentStreak(dates, "2026-10-22") === 3,
+          "当前连续天数不正确",
+        );
+      });
+
+      test("今天未完成但昨天连续时保留 Streak", () => {
+        const dates = new Set(["2026-10-19", "2026-10-20", "2026-10-21"]);
+        assert(
+          getCurrentStreak(dates, "2026-10-22") === 3,
+          "今天尚未打卡时 Streak 不应归零",
+        );
+      });
+
+      test("昨天也没有记录时 Streak 归零", () => {
+        const dates = new Set(["2026-10-18", "2026-10-19"]);
+        assert(
+          getCurrentStreak(dates, "2026-10-22") === 0,
+          "中断后的当前 Streak 应为零",
+        );
+      });
+
+      test("乱序日期可正确计算最长连续", () => {
+        const dates = new Set([
+          "2026-10-05",
+          "2026-10-01",
+          "2026-10-02",
+          "2026-10-03",
+          "2026-10-08",
+        ]);
+        assert(getLongestStreak(dates) === 3, "最长连续天数不正确");
+      });
+
+      test("整体当日完成率正确", () => {
+        const habits = [
+          {
+            id: "a",
+            created_at: "2026-10-01T08:00:00+08:00",
+          },
+          {
+            id: "b",
+            created_at: "2026-10-01T08:00:00+08:00",
+          },
+        ];
+        const index = buildCheckInIndex([
+          { habit_id: "a", checked_date: "2026-10-22" },
+        ]);
+        const result = getCompletionForDate(habits, index, "2026-10-22");
+        assert(
+          result.completed === 1 &&
+            result.eligible === 2 &&
+            result.percentage === 50,
+          "当日完成率不正确",
+        );
+      });
+
+      test("新建习惯之前不计入完成率", () => {
+        const habits = [
+          {
+            id: "a",
+            created_at: "2026-10-21T08:00:00+08:00",
+          },
+          {
+            id: "b",
+            created_at: "2026-10-22T08:00:00+08:00",
+          },
+        ];
+        const index = buildCheckInIndex([
+          { habit_id: "a", checked_date: "2026-10-20" },
+          { habit_id: "a", checked_date: "2026-10-21" },
+        ]);
+        const result = getRangeCompletion(
+          habits,
+          index,
+          "2026-10-22",
+          3,
+        );
+        assert(
+          result.completed === 1 && result.eligible === 3,
+          "创建时间过滤不正确",
+        );
+      });
+
+      test("单习惯范围完成率正确", () => {
+        const habit = {
+          id: "a",
+          created_at: "2026-10-20T08:00:00+08:00",
+        };
+        const index = buildCheckInIndex([
+          { habit_id: "a", checked_date: "2026-10-20" },
+          { habit_id: "a", checked_date: "2026-10-22" },
+        ]);
+        const result = getHabitRangeCompletion(
+          habit,
+          index,
+          "2026-10-22",
+          3,
+        );
+        assert(
+          result.completed === 2 && result.percentage === 67,
+          "单习惯完成率不正确",
+        );
+      });
+
+      test("每日名言数量至少 60 条", () => {
+        assert(QUOTES.length >= 60, `当前只有 ${QUOTES.length} 条`);
+      });
+
+      test("每日名言同日稳定且次日变化", () => {
+        const first = getQuoteForDate("2026-10-22");
+        const sameDay = getQuoteForDate("2026-10-22");
+        const nextDay = getQuoteForDate("2026-10-23");
+        assert(first.text === sameDay.text, "同一天名言发生变化");
+        assert(first.text !== nextDay.text, "第二天名言没有变化");
+      });
+
+      const passed = results.filter((result) => result.passed).length;
+      const failed = results.length - passed;
+      const report = [
+        ...results.map(
+          (result) =>
+            `${result.passed ? "PASS" : "FAIL"}  ${result.name}${
+              result.error ? `：${result.error}` : ""
+            }`,
+        ),
+        "",
+        `RESULT ${passed} passed, ${failed} failed`,
+      ].join("\n");
+
+      document.querySelector("#results").textContent = report;
+    </script>
+  </body>
+</html>

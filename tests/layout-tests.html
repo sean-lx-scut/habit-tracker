@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>微习惯布局测试</title>
+    <style>
+      body {
+        margin: 0;
+        font: 14px/1.5 monospace;
+      }
+
+      iframe {
+        width: 390px;
+        height: 844px;
+        border: 1px solid #333;
+      }
+
+      pre {
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe id="preview" src="../index.html#today"></iframe>
+    <pre id="results">RUNNING</pre>
+    <script>
+      const frame = document.querySelector("#preview");
+      const results = document.querySelector("#results");
+
+      frame.addEventListener("load", () => {
+        window.setTimeout(() => {
+          const doc = frame.contentDocument;
+          const root = doc.documentElement;
+          const body = doc.body;
+          const card = doc.querySelector(".status-card");
+          const cardRect = card?.getBoundingClientRect();
+
+          const report = {
+            viewportWidth: frame.clientWidth,
+            documentScrollWidth: root.scrollWidth,
+            bodyScrollWidth: body.scrollWidth,
+            horizontalOverflow: root.scrollWidth > frame.clientWidth,
+            cardLeft: cardRect ? Math.round(cardRect.left) : null,
+            cardRight: cardRect ? Math.round(cardRect.right) : null,
+            cardWidth: cardRect ? Math.round(cardRect.width) : null,
+            setupVisible: Boolean(doc.querySelector(".setup-steps")),
+          };
+
+          results.textContent = [
+            "PASS 应用模块已加载",
+            `RESULT ${JSON.stringify(report)}`,
+          ].join("\n");
+        }, 1_200);
+      });
+    </script>
+  </body>
+</html>

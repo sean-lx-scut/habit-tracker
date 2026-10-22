@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="微习惯是一款轻量、温暖的每日习惯打卡工具。"
+    />
+    <meta name="theme-color" content="#f4f0e6" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; font-src 'self'; base-uri 'none'; form-action 'self';"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%233f6b57'/%3E%3Cpath d='M19 38c12-1 21-9 26-22 4 15-2 27-18 30' fill='none' stroke='%23fff9ec' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"
+    />
+    <title>微习惯 · 每天进步一点点</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
+    <div id="app" aria-live="polite">
+      <div class="boot-screen">
+        <div class="boot-mark" aria-hidden="true">微</div>
+        <p>正在整理今天的小进步…</p>
+      </div>
+    </div>
+    <div id="toast-root" class="toast-root" aria-live="polite"></div>
+
+    <dialog id="habit-dialog" class="sheet-dialog" aria-labelledby="habit-dialog-title">
+      <form id="habit-form" class="dialog-card" novalidate>
+        <div class="dialog-heading">
+          <div>
+            <p class="eyebrow">一个微小的开始</p>
+            <h2 id="habit-dialog-title">添加习惯</h2>
+          </div>
+          <button
+            class="icon-button"
+            type="button"
+            data-dialog-close="habit-dialog"
+            aria-label="关闭"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m6 6 12 12M18 6 6 18" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="form-field">
+          <label for="habit-name">习惯名称</label>
+          <input
+            id="habit-name"
+            name="name"
+            type="text"
+            maxlength="40"
+            autocomplete="off"
+            placeholder="例如：阅读 20 分钟"
+            required
+          />
+          <p class="field-hint">尽量具体、轻巧，让自己容易开始。</p>
+        </div>
+
+        <fieldset class="form-field">
+          <legend>选择图标</legend>
+          <div id="emoji-options" class="emoji-options" aria-label="快捷图标"></div>
+          <label class="emoji-input-label" for="habit-emoji">
+            或输入一个 Emoji
+            <input
+              id="habit-emoji"
+              name="emoji"
+              type="text"
+              maxlength="8"
+              value="🌱"
+              autocomplete="off"
+            />
+          </label>
+        </fieldset>
+
+        <fieldset class="form-field">
+          <legend>习惯颜色</legend>
+          <div id="color-options" class="color-options"></div>
+        </fieldset>
+
+        <p id="habit-form-error" class="form-error" role="alert"></p>
+
+        <div class="dialog-actions">
+          <button
+            class="button button-ghost"
+            type="button"
+            data-dialog-close="habit-dialog"
+          >
+            取消
+          </button>
+          <button id="habit-submit" class="button button-primary" type="submit">
+            保存习惯
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="delete-dialog" class="sheet-dialog" aria-labelledby="delete-dialog-title">
+      <div class="dialog-card dialog-card-compact">
+        <div class="danger-mark" aria-hidden="true">!</div>
+        <h2 id="delete-dialog-title">删除这个习惯？</h2>
+        <p>
+          “<strong id="delete-habit-name"></strong>”的打卡记录也会一并删除，此操作无法撤销。
+        </p>
+        <p id="delete-form-error" class="form-error" role="alert"></p>
+        <div class="dialog-actions">
+          <button
+            class="button button-ghost"
+            type="button"
+            data-dialog-close="delete-dialog"
+          >
+            再想想
+          </button>
+          <button id="delete-submit" class="button button-danger" type="button">
+            确认删除
+          </button>
+        </div>
+      </div>
+    </dialog>
+
+    <noscript>
+      <div class="noscript-message">微习惯需要启用 JavaScript 才能使用。</div>
+    </noscript>
+
+    <script type="module" src="./js/app.js"></script>
+  </body>
+</html>
